@@ -1,6 +1,8 @@
 import productSchema from "../entities/productSchema.js";
+import historyApi from "../helpers/historyApi.js";
 import Product from "../models/product.js";
 import BaseController from "./baseController.js";
+
 
 export default class ProductController extends BaseController {
 	static async all(req, res) {
@@ -16,7 +18,12 @@ export default class ProductController extends BaseController {
 
 			return res.status(200).json({ data: products });
 		} catch (error) {
-			return ProductController.handleError(res, "Error fetching products", 500);
+			return ProductController.handleError(
+				res,
+				"Error fetching products",
+				error,
+				500
+			);
 		}
 	}
 
@@ -34,7 +41,12 @@ export default class ProductController extends BaseController {
 
 			return res.status(200).json({ data: product });
 		} catch (error) {
-			return ProductController.handleError(res, "Error fetching product", 500);
+			return ProductController.handleError(
+				res,
+				"Error fetching product",
+				error,
+				500
+			);
 		}
 	}
 
@@ -64,10 +76,16 @@ export default class ProductController extends BaseController {
 			product.plu = plu;
 
 			await productRepository.save(product);
+			await historyApi("/product", { action: "CREATE", ...product });
 
 			return res.status(201).json({ data: product });
 		} catch (error) {
-			return ProductController.handleError(res, "Error on create product", 500);
+			return ProductController.handleError(
+				res,
+				"Error on create product",
+				error,
+				500
+			);
 		}
 	}
 

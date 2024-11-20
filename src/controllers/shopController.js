@@ -10,7 +10,12 @@ export default class ShopController extends BaseController {
 
 			return res.status(200).json({ data: shops });
 		} catch (error) {
-			return ShopController.handleError(res, "Error fetching shops", 500);
+			return ShopController.handleError(
+				res,
+				"Error fetching shops",
+				error,
+				500
+			);
 		}
 	}
 
@@ -23,7 +28,12 @@ export default class ShopController extends BaseController {
 
 			return res.status(201).json({ data: shop });
 		} catch (error) {
-			return ShopController.handleError(res, "Error fetching shops", 500);
+			return ShopController.handleError(
+				res,
+				"Error fetching shops",
+				error,
+				500
+			);
 		}
 	}
 }
