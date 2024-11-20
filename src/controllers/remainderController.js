@@ -1,3 +1,4 @@
+import { LessThanOrEqual, MoreThan, MoreThanOrEqual } from "typeorm";
 import AppDataSource from "../data-source.js";
 import ProductSchema from "../entities/productSchema.js";
 import RemainderSchema from "../entities/remainderSchema.js";
@@ -10,7 +11,14 @@ export default class RemainderController extends BaseController {
 		try {
 			const remainderRepository =
 				RemainderController.getRepository(RemainderSchema);
-			const remainders = await remainderRepository.find();
+			const filters = RemainderController.getQueryFilters(req.query);
+			const options = RemainderController.getQueryOptions(req.query);
+
+			const remainders = await remainderRepository.find({
+				where: filters,
+				...options,
+				relations: ["shop", "product"],
+			});
 
 			return res.status(200).json({ data: remainders });
 		} catch (error) {
@@ -134,6 +142,75 @@ export default class RemainderController extends BaseController {
 				500
 			);
 		}
+	}
+
+	static getQueryFilters(query) {
+		const filters = {};
+
+		if (query.plu) {
+			filters.plu = query.plu;
+		}
+
+		if (query.shop_id) {
+			const shopId = parseInt(query.shop_id, 10);
+			if (!isNaN(shopId)) {
+				filters.shop_id = shopId;
+			}
+		}
+
+		if (query.shelf_min || query.shelf_max) {
+			filters.shelf_amount = {};
+			if (query.shelf_min) {
+				const shelfMin = parseInt(query.shelf_min, 10);
+				if (!isNaN(shelfMin)) {
+					filters.shelf_amount = MoreThanOrEqual(shelfMin);
+				}
+			}
+			if (query.shelf_max) {
+				const shelfMax = parseInt(query.shelf_max, 10);
+				if (!isNaN(shelfMax)) {
+					filters.shelf_amount = LessThanOrEqual(shelfMax);
+				}
+			}
+		}
+
+		if (query.order_min || query.order_max) {
+			filters.order_amount = {};
+			if (query.order_min) {
+				const orderMin = parseInt(query.order_min, 10);
+				if (!isNaN(orderMin)) {
+					filters.order_amount = MoreThanOrEqual(orderMin);
+				}
+			}
+			if (query.order_max) {
+				const orderMax = parseInt(query.order_max, 10);
+				if (!isNaN(orderMax)) {
+					filters.order_amount.$lte = LessThanOrEqual(orderMax);
+				}
+			}
+		}
+
+		return filters;
+	}
+
+	static getQueryOptions(query) {
+		const options = { skip: 0, take: 10 };
+
+		if (query.limit) {
+			const limit = parseInt(query.limit, 10);
+			if (!isNaN(limit) && limit > 0) {
+				options.take = limit;
+			}
+		}
+
+		if (query.offset) {
+			const offset = parseInt(query.offset, 10);
+			if (!isNaN(offset) && offset > 0) {
+				options.skip = offset;
+			}
+		}
+
+		return options;
 	}
 
 	static isValidPlace(place) {
