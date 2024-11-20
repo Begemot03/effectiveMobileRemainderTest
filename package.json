@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"scripts": {
-		"dev": "node src/app.js"
+		"dev": "node src/App.js"
 	},
 	"dependencies": {
 		"express": "^4.21.1",

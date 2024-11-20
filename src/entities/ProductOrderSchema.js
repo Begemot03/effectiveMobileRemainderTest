@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm";
-import ProductOrder from "../models/ProductOrder.js";
+import ProductOrder from "../models/productOrder.js";
 
 export default new EntitySchema({
 	name: "ProductOrder",
