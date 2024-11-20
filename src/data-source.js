@@ -1,8 +1,6 @@
 import { DataSource } from "typeorm";
-import OrderSchema from "./entities/orderSchema.js";
 import ProductSchema from "./entities/productSchema.js";
 import ShopSchema from "./entities/shopSchema.js";
-import ProductOrderSchema from "./entities/productOrderSchema.js";
 import ProductShopSchema from "./entities/productShopSchema.js";
 import RemainderSchema from "./entities/remainderSchema.js";
 
@@ -22,9 +20,7 @@ const AppDataSource = new DataSource({
 	synchronize: true,
 	entities: [
 		ProductSchema,
-		OrderSchema,
 		ShopSchema,
-		ProductOrderSchema,
 		ProductShopSchema,
 		RemainderSchema,
 	],

@@ -3,7 +3,7 @@ import ProductController from "../controllers/productController.js";
 
 const productRouter = Router();
 
-productRouter.route("/product/:filter").get(ProductController.get);
+productRouter.route("/product/:id").get(ProductController.get);
 
 productRouter
 	.route("/product")

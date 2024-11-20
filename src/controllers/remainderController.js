@@ -1,5 +1,4 @@
-import { LessThanOrEqual, MoreThan, MoreThanOrEqual } from "typeorm";
-import AppDataSource from "../data-source.js";
+import { LessThanOrEqual, MoreThanOrEqual } from "typeorm";
 import ProductSchema from "../entities/productSchema.js";
 import RemainderSchema from "../entities/remainderSchema.js";
 import ShopSchema from "../entities/shopSchema.js";
@@ -193,25 +192,6 @@ export default class RemainderController extends BaseController {
 		return filters;
 	}
 
-	static getQueryOptions(query) {
-		const options = { skip: 0, take: 10 };
-
-		if (query.limit) {
-			const limit = parseInt(query.limit, 10);
-			if (!isNaN(limit) && limit > 0) {
-				options.take = limit;
-			}
-		}
-
-		if (query.offset) {
-			const offset = parseInt(query.offset, 10);
-			if (!isNaN(offset) && offset > 0) {
-				options.skip = offset;
-			}
-		}
-
-		return options;
-	}
 
 	static isValidPlace(place) {
 		return place == "order" || place == "shop";

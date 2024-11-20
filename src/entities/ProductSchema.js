@@ -21,12 +21,6 @@ export default new EntitySchema({
 		},
 	},
 	relations: {
-		productsOrder: {
-			target: "ProductOrder", 
-			type: "one-to-many",
-			inverseSide: "product",
-			cascade: true,
-		},
 		productsRemainder: {
 			target: "Remainder",
 			type: "one-to-many",

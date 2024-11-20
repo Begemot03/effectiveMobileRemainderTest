@@ -1,4 +1,3 @@
-import AppDataSource from "../data-source.js";
 import productSchema from "../entities/productSchema.js";
 import Product from "../models/product.js";
 import BaseController from "./baseController.js";
@@ -7,7 +6,13 @@ export default class ProductController extends BaseController {
 	static async all(req, res) {
 		try {
 			const productRepository = ProductController.getRepository(productSchema);
-			const products = await productRepository.find();
+			const filters = ProductController.getQueryFiltres(req.query);
+			const options = ProductController.getQueryOptions(req.query);
+
+			const products = await productRepository.find({
+				where: filters,
+				...options,
+			});
 
 			return res.status(200).json({ data: products });
 		} catch (error) {
@@ -17,31 +22,11 @@ export default class ProductController extends BaseController {
 
 	static async get(req, res) {
 		try {
-			const filter = ProductController.validateString(
-				req.params["filter"],
-				"filter"
-			);
-			const id = parseInt(filter, 10);
-			let query = {};
-
-			if (ProductController.isValidPlu(filter)) {
-				query = { plu: filter };
-			} else if (!isNaN(id)) {
-				query = { product_id: id };
-			} else {
-				query = { name: ProductController.convertParamNameToBasicName(filter) };
-			}
-
-			await ProductController.getBy(query, req, res);
-		} catch (error) {
-			return ProductController.handleError(res, "Error fetching product", 500);
-		}
-	}
-
-	static async getBy(filter, req, res) {
-		try {
 			const productRepository = ProductController.getRepository(productSchema);
-			const product = await productRepository.findOne({ where: filter });
+			const id = ProductController.validateInteger(req.params["id"], "id");
+			const filters = { id, ...ProductController.getQueryFiltres(req.query) };
+
+			const product = await productRepository.findOne({ where: filters });
 
 			if (!product) {
 				return res.status(404).json({ message: "Product not found" });
@@ -49,7 +34,7 @@ export default class ProductController extends BaseController {
 
 			return res.status(200).json({ data: product });
 		} catch (error) {
-			return res.status(500).json({ message: "Error fetching product", error });
+			return ProductController.handleError(res, "Error fetching product", 500);
 		}
 	}
 
@@ -84,6 +69,19 @@ export default class ProductController extends BaseController {
 		} catch (error) {
 			return ProductController.handleError(res, "Error on create product", 500);
 		}
+	}
+
+	static getQueryFiltres(query) {
+		const filters = {};
+
+		if (query.plu && ProductController.isValidPlu(query.plu)) {
+			filters.plu = query.plu;
+		}
+		if (query.name) {
+			filters.name = query.name;
+		}
+
+		return filters;
 	}
 
 	static isValidPlu(plu) {
