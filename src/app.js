@@ -2,9 +2,10 @@ import "reflect-metadata";
 import AppDataSource from "./data-source.js";
 import express from "express";
 import apiRouter from "./routes/api.js";
+import "dotenv/config";
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.APP_PORT;
 
 app.use(express.json());
 app.use("/api", apiRouter);
@@ -15,7 +16,7 @@ app.use("*", (req, res) => {
 AppDataSource.initialize()
 	.then(async () => {
 		app.listen(PORT, () => {
-			console.log("Server is running");
+			console.log(`Server is running on port ${PORT}`);
 		});
 	})
 	.catch((e) => console.log(e));
