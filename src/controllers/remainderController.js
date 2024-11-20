@@ -1,9 +1,10 @@
-import { LessThanOrEqual, MoreThanOrEqual } from "typeorm";
+import { Between, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
 import ProductSchema from "../entities/productSchema.js";
 import RemainderSchema from "../entities/remainderSchema.js";
 import ShopSchema from "../entities/shopSchema.js";
 import Remainder from "../models/remainder.js";
 import BaseController from "./baseController.js";
+import historyApi from "../helpers/historyApi.js";
 
 export default class RemainderController extends BaseController {
 	static async all(req, res) {
@@ -90,8 +91,19 @@ export default class RemainderController extends BaseController {
 
 			await remainderRepository.save(remainder);
 
+			const productInfo = await productRepository.findOne({
+				where: { product_id },
+			});
+
+			await historyApi("/remainder", {
+				shop_id: remainder.shop_id,
+				product_id: remainder.product_id,
+				plu: productInfo.plu,
+				action: "CREATE",
+			});
+
 			return res.status(201).json({ data: remainder });
-		} catch (e) {
+		} catch (error) {
 			return RemainderController.handleError(
 				res,
 				"Error creating remainder",
@@ -109,9 +121,9 @@ export default class RemainderController extends BaseController {
 				req.params["remainder_id"],
 				"remainder_id"
 			);
-			const place = req.query.place;
+			const place = req.body.place;
 			const amount = RemainderController.validateInteger(
-				req.query.amount,
+				req.body.amount,
 				"amount"
 			);
 
@@ -135,6 +147,12 @@ export default class RemainderController extends BaseController {
 			}
 
 			await remainderRepository.save(remainder);
+			await historyApi("/remainder", {
+				shop_id: remainder.shop_id,
+				product_id: remainder.product_id,
+				plu: remainder.product.plu,
+				action: amount < 0 ? "DECREASE" : "INCREASE",
+			});
 
 			return res.status(200).json({ data: remainder });
 		} catch (error) {
@@ -162,34 +180,28 @@ export default class RemainderController extends BaseController {
 		}
 
 		if (query.shelf_min || query.shelf_max) {
-			filters.shelf_amount = {};
-			if (query.shelf_min) {
-				const shelfMin = parseInt(query.shelf_min, 10);
-				if (!isNaN(shelfMin)) {
-					filters.shelf_amount = MoreThanOrEqual(shelfMin);
-				}
-			}
-			if (query.shelf_max) {
-				const shelfMax = parseInt(query.shelf_max, 10);
-				if (!isNaN(shelfMax)) {
-					filters.shelf_amount = LessThanOrEqual(shelfMax);
-				}
+			const shelfMin = parseInt(query.shelf_min, 10);
+			const shelfMax = parseInt(query.shelf_max, 10);
+
+			if (!isNaN(shelfMin) && !isNaN(shelfMax)) {
+				filters.shelf_amount = Between(shelfMin, shelfMax);
+			} else if (!isNaN(shelfMin)) {
+				filters.shelf_amount = MoreThanOrEqual(shelfMin);
+			} else if (!isNaN(shelfMax)) {
+				filters.shelf_amount = LessThanOrEqual(shelfMax);
 			}
 		}
 
 		if (query.order_min || query.order_max) {
-			filters.order_amount = {};
-			if (query.order_min) {
-				const orderMin = parseInt(query.order_min, 10);
-				if (!isNaN(orderMin)) {
-					filters.order_amount = MoreThanOrEqual(orderMin);
-				}
-			}
-			if (query.order_max) {
-				const orderMax = parseInt(query.order_max, 10);
-				if (!isNaN(orderMax)) {
-					filters.order_amount.$lte = LessThanOrEqual(orderMax);
-				}
+			const orderMin = parseInt(query.order_min, 10);
+			const orderMax = parseInt(query.order_max, 10);
+
+			if (!isNaN(orderMin) && !isNaN(orderMax)) {
+				filters.order_amount = Between(orderMin, orderMax);
+			} else if (!isNaN(orderMin)) {
+				filters.order_amount = MoreThanOrEqual(orderMin);
+			} else if (!isNaN(orderMax)) {
+				filters.order_amount = LessThanOrEqual(orderMax);
 			}
 		}
 
