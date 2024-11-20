@@ -20,11 +20,11 @@ export default new EntitySchema({
 			type: "int",
 		},
 		shelf_amount: {
-			type: "numeric",
+			type: "int",
 			default: 0,
 		},
 		order_amount: {
-			type: "numeric",
+			type: "int",
 			default: 0,
 		},
 	},

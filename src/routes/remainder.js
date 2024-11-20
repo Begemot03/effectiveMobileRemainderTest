@@ -3,7 +3,9 @@ import RemainderController from "../controllers/remainderController.js";
 
 const remainderRouter = Router();
 
-remainderRouter.route("/remainder/:remainder_id").get(RemainderController.get);
+remainderRouter.route("/remainder/:remainder_id")
+    .get(RemainderController.get)
+    .put(RemainderController.update)
 
 remainderRouter
 	.route("/remainder")

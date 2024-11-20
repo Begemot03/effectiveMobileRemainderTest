@@ -3,33 +3,37 @@ import ProductSchema from "../entities/productSchema.js";
 import RemainderSchema from "../entities/remainderSchema.js";
 import ShopSchema from "../entities/shopSchema.js";
 import Remainder from "../models/remainder.js";
+import BaseController from "./baseController.js";
 
-export default class RemainderController {
+export default class RemainderController extends BaseController {
 	static async all(req, res) {
 		try {
-			const remainderRepository = AppDataSource.getRepository(RemainderSchema);
+			const remainderRepository =
+				RemainderController.getRepository(RemainderSchema);
 			const remainders = await remainderRepository.find();
 
 			return res.status(200).json({ data: remainders });
 		} catch (error) {
-			return res
-				.status(500)
-				.json({ message: "Error fetching remainders", error });
+			return RemainderController.handleError(
+				res,
+				"Error fetching remainders",
+				500
+			);
 		}
 	}
 
 	static async get(req, res) {
 		try {
-			const remainderRepository = AppDataSource.getRepository(RemainderSchema);
-			const remainder_id = parseInt(req.params["remainder_id"]);
-
-			if (!Number.isInteger(remainder_id)) {
-				return res.status(400).json({ message: "Invalid params" });
-			}
+			const remainderRepository =
+				RemainderController.getRepository(RemainderSchema);
+			const remainder_id = RemainderController.validateInteger(
+				req.params["remainder_id"],
+				"remainder_id"
+			);
 
 			const remainder = await remainderRepository.findOne({
 				where: { remainder_id },
-                relations: ["shop", "product"]
+				relations: ["shop", "product"],
 			});
 
 			if (!remainder) {
@@ -38,18 +42,21 @@ export default class RemainderController {
 
 			return res.status(200).json({ data: remainder });
 		} catch (error) {
-            console.log(error)
-			return res
-				.status(500)
-				.json({ message: "Error fetching remainders", error });
+			return RemainderController.handleError(
+				res,
+				"Error fetching remainder",
+				500
+			);
 		}
 	}
 
 	static async create(req, res) {
 		try {
-			const shopRepository = AppDataSource.getRepository(ShopSchema);
-			const productRepository = AppDataSource.getRepository(ProductSchema);
-			const remainderRepository = AppDataSource.getRepository(RemainderSchema);
+			const shopRepository = RemainderController.getRepository(ShopSchema);
+			const productRepository =
+				RemainderController.getRepository(ProductSchema);
+			const remainderRepository =
+				RemainderController.getRepository(RemainderSchema);
 
 			const { product_id, shop_id } = req.body;
 
@@ -64,8 +71,8 @@ export default class RemainderController {
 			});
 			const shop = await shopRepository.findOne({ where: { shop_id } });
 
-			if (product == null || shop == null) {
-				return res.status(404).json({ message: "Product or Shop not exist" });
+			if (!product || !shop) {
+				return res.status(404).json({ message: "Product or Shop not found" });
 			}
 
 			const remainder = new Remainder();
@@ -76,10 +83,61 @@ export default class RemainderController {
 
 			return res.status(201).json({ data: remainder });
 		} catch (e) {
-			return res
-				.status(500)
-				.json({ message: "Error on create remainder", error });
+			return RemainderController.handleError(
+				res,
+				"Error creating remainder",
+				error
+			);
 		}
+	}
+
+	static async update(req, res) {
+		try {
+			const remainderRepository =
+				RemainderController.getRepository(RemainderSchema);
+			const remainder_id = RemainderController.validateInteger(
+				req.params["remainder_id"],
+				"remainder_id"
+			);
+			const place = req.query.place;
+			const amount = RemainderController.validateInteger(
+				req.query.amount,
+				"amount"
+			);
+
+			if (!place || !RemainderController.isValidPlace(place)) {
+				return res.status(400).json({ message: "Invalid place value" });
+			}
+
+			const remainder = await remainderRepository.findOne({
+				where: { remainder_id },
+				relations: ["shop", "product"],
+			});
+
+			if (!remainder) {
+				return res.status(404).json({ message: "Remainder not found" });
+			}
+
+			if (place === "order") {
+				remainder.order_amount = (remainder.order_amount || 0) + amount;
+			} else if (place === "shop") {
+				remainder.shelf_amount = (remainder.shelf_amount || 0) + amount;
+			}
+
+			await remainderRepository.save(remainder);
+
+			return res.status(200).json({ data: remainder });
+		} catch (error) {
+			return RemainderController.handleError(
+				res,
+				"Error fetching remainders",
+				500
+			);
+		}
+	}
+
+	static isValidPlace(place) {
+		return place == "order" || place == "shop";
 	}
 
 	static isValidBodyOnCreate(product_id, shop_id) {
