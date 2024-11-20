@@ -24,6 +24,7 @@ export default class RemainderController extends BaseController {
 			return RemainderController.handleError(
 				res,
 				"Error fetching remainders",
+				error,
 				500
 			);
 		}
@@ -52,6 +53,7 @@ export default class RemainderController extends BaseController {
 			return RemainderController.handleError(
 				res,
 				"Error fetching remainder",
+				error,
 				500
 			);
 		}
@@ -93,7 +95,8 @@ export default class RemainderController extends BaseController {
 			return RemainderController.handleError(
 				res,
 				"Error creating remainder",
-				error
+				error,
+				500
 			);
 		}
 	}
@@ -138,6 +141,7 @@ export default class RemainderController extends BaseController {
 			return RemainderController.handleError(
 				res,
 				"Error fetching remainders",
+				error,
 				500
 			);
 		}
@@ -191,7 +195,6 @@ export default class RemainderController extends BaseController {
 
 		return filters;
 	}
-
 
 	static isValidPlace(place) {
 		return place == "order" || place == "shop";

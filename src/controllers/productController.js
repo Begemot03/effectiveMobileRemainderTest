@@ -16,7 +16,7 @@ export default class ProductController extends BaseController {
 
 			return res.status(200).json({ data: products });
 		} catch (error) {
-			return ProductController.handleError(res, "Error fetching products", 500);
+			return ProductController.handleError(res, "Error fetching products", error, 500);
 		}
 	}
 
@@ -34,7 +34,7 @@ export default class ProductController extends BaseController {
 
 			return res.status(200).json({ data: product });
 		} catch (error) {
-			return ProductController.handleError(res, "Error fetching product", 500);
+			return ProductController.handleError(res, "Error fetching product", error, 500);
 		}
 	}
 
@@ -67,7 +67,7 @@ export default class ProductController extends BaseController {
 
 			return res.status(201).json({ data: product });
 		} catch (error) {
-			return ProductController.handleError(res, "Error on create product", 500);
+			return ProductController.handleError(res, "Error on create product", error, 500);
 		}
 	}
 
