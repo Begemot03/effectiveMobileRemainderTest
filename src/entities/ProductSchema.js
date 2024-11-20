@@ -27,8 +27,8 @@ export default new EntitySchema({
 			inverseSide: "product",
 			cascade: true,
 		},
-		productsShop: {
-			target: "ProductShop",
+		productsRemainder: {
+			target: "Remainder",
 			type: "one-to-many",
 			inverseSide: "product", 
 			cascade: true,

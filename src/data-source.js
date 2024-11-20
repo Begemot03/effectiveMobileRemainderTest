@@ -4,6 +4,7 @@ import ProductSchema from "./entities/productSchema.js";
 import ShopSchema from "./entities/shopSchema.js";
 import ProductOrderSchema from "./entities/productOrderSchema.js";
 import ProductShopSchema from "./entities/productShopSchema.js";
+import RemainderSchema from "./entities/remainderSchema.js";
 
 const DB_HOST = "localhost";
 const DB_PORT = 5432;
@@ -25,6 +26,7 @@ const AppDataSource = new DataSource({
 		ShopSchema,
 		ProductOrderSchema,
 		ProductShopSchema,
+		RemainderSchema,
 	],
 });
 

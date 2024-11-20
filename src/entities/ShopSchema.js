@@ -13,8 +13,8 @@ export default new EntitySchema({
 		},
 	},
 	relations: {
-		productsShop: {
-			target: "ProductShop",
+		productsRemainder: {
+			target: "Remainder",
 			type: "one-to-many",
 			inverseSide: "product",
 		},
