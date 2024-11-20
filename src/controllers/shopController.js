@@ -9,7 +9,7 @@ export default class ShopController {
 			const shops = await shopRepository.find();
 
 			return res.status(200).json({ data: shops });
-		} catch (e) {
+		} catch (error) {
 			return res.status(500).json({ message: "Error fetching shops", error });
 		}
 	}
@@ -22,8 +22,8 @@ export default class ShopController {
 			await shopRepository.save(shop);
 
 			return res.status(201).json({ data: shop });
-		} catch (e) {
-			return res.status(500).json({ message: "Error on shop creating" });
+		} catch (error) {
+			return res.status(500).json({ message: "Error on shop creating", error });
 		}
 	}
 }

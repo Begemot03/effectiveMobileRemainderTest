@@ -38,7 +38,6 @@ export default class ProductController {
 	static async getBy(filter, req, res) {
 		try {
 			const productRepository = AppDataSource.getRepository(productSchema);
-			console.log(filter);
 			const product = await productRepository.findOne({ where: filter });
 
 			if (!product) {
