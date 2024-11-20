@@ -81,7 +81,7 @@ export default class ProductController {
 
 			await productRepository.save(product);
 
-			return res.status(201).json({ message: "Create complete" });
+			return res.status(201).json({ data: product });
 		} catch (error) {
 			return res.status(500).json({ message: "Error creating product", error });
 		}
